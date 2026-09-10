@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Opportunity Radar</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Source+Sans+3:wght@400;500;600;700&family=Caveat:wght@500;600&display=swap">
+<style>
+  :root{
+    --bg:#FAF9F6;
+    --surface:#FFFFFF;
+    --surface-alt:#EFEBE3;
+    --border:#E1DCD1;
+    --text:#2D2D2D;
+    --text-muted:#6B7280;
+    --primary:#0B2545;
+    --secondary:#1E4E79;
+    --tint:#A9D6E5;
+    --tint-soft:#EAF4F7;
+    --gold:#B3830F;
+    --gold-soft:#FBF0D2;
+    --coral:#D8503F;
+    --coral-soft:#FCE7E3;
+    --lavender:#8C77C2;
+    --lavender-soft:#F0EBFA;
+    --focus:#1E4E79;
+    --shadow: 0 1px 2px rgba(11,37,69,0.06), 0 8px 24px -12px rgba(11,37,69,0.18);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1D33;
+      --surface:#0F2743;
+      --surface-alt:#123054;
+      --border:#1E3F63;
+      --text:#EAEEF3;
+      --text-muted:#9FB2C7;
+      --primary:#EAEEF3;
+      --secondary:#8FC6E8;
+      --tint:#274E6E;
+      --tint-soft:#173355;
+      --gold:#E8C158;
+      --gold-soft:#2C260F;
+      --coral:#F0897A;
+      --coral-soft:#3A1D19;
+      --lavender:#C3B2EC;
+      --lavender-soft:#251E3C;
+      --focus:#8FC6E8;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 28px -14px rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1D33;
+    --surface:#0F2743;
+    --surface-alt:#123054;
+    --border:#1E3F63;
+    --text:#EAEEF3;
+    --text-muted:#9FB2C7;
+    --primary:#EAEEF3;
+    --secondary:#8FC6E8;
+    --tint:#274E6E;
+    --tint-soft:#173355;
+    --gold:#E8C158;
+    --gold-soft:#2C260F;
+    --coral:#F0897A;
+    --coral-soft:#3A1D19;
+    --lavender:#C3B2EC;
+    --lavender-soft:#251E3C;
+    --focus:#8FC6E8;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 28px -14px rgba(0,0,0,0.6);
+  }
+
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:"Source Sans 3", "Source Sans Pro", -apple-system, "Segoe UI", sans-serif;
+    padding:0 20px 64px;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{ color:inherit; }
+  .wrap{ max-width:880px; margin:0 auto; position:relative; }
+
+  /* ---- contour-line brand motif ---- */
+  .contours{
+    position:absolute; top:0; right:-40px; width:340px; height:340px;
+    opacity:0.5; pointer-events:none; z-index:0;
+  }
+  @media (max-width:700px){ .contours{ display:none; } }
+
+  /* ---- masthead ---- */
+  header.mast{
+    position:relative;
+    padding-top:56px;
+    padding-bottom:36px;
+    z-index:1;
+  }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:13px; font-weight:700; letter-spacing:0.11em; text-transform:uppercase;
+    color:var(--secondary);
+    margin:0 0 14px;
+  }
+  .eyebrow::before{ content:"🌍"; font-size:14px; }
+  h1{
+    font-family:"EB Garamond", Georgia, serif;
+    font-weight:600;
+    font-size:clamp(34px, 6vw, 52px);
+    line-height:1.05;
+    margin:0 0 14px;
+    color:var(--primary);
+    text-wrap:balance;
+    max-width:14ch;
+  }
+  .dek{
+    font-size:17px;
+    line-height:1.55;
+    color:var(--text-muted);
+    max-width:52ch;
+    margin:0;
+  }
+  .disclaimer{
+    font-size:12.5px;
+    line-height:1.5;
+    color:var(--text-muted);
+    opacity:0.8;
+    max-width:52ch;
+    margin:10px 0 0;
+  }
+  .signature{
+    font-family:"Caveat", cursive;
+    font-size:19px;
+    color:var(--gold);
+    margin-top:14px;
+    display:inline-block;
+  }
+
+  /* ---- week rail ---- */
+  .week-rail-shell{
+    margin-top:34px;
+    border-top:1px solid var(--border);
+    border-bottom:1px solid var(--border);
+    padding:14px 0;
+  }
+  .week-rail{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    scrollbar-width:none;
+    padding:2px 2px;
+  }
+  .week-rail::-webkit-scrollbar{ display:none; }
+  .week-pill{
+    flex:0 0 auto;
+    border:1px solid var(--border);
+    background:var(--surface);
+    color:var(--text-muted);
+    border-radius:999px;
+    padding:9px 16px;
+    font-size:13.5px;
+    font-weight:600;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .week-pill:hover{ border-color:var(--secondary); color:var(--text); }
+  .week-pill:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .week-pill[aria-pressed="true"]{
+    background:var(--primary);
+    border-color:var(--primary);
+    color:var(--bg);
+  }
+  .week-pill .dot{
+    display:inline-block; width:6px; height:6px; border-radius:50%;
+    background:var(--gold); margin-right:7px; vertical-align:middle;
+  }
+  .week-pill[aria-pressed="true"] .dot{ background:var(--bg); }
+
+  /* ---- current week banner ---- */
+  .week-head{
+    display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:10px;
+    margin:30px 0 6px;
+  }
+  .week-head h2{
+    font-family:"EB Garamond", Georgia, serif;
+    font-weight:600;
+    font-size:26px;
+    margin:0;
+    color:var(--primary);
+  }
+  .week-count{
+    font-size:13.5px;
+    color:var(--text-muted);
+    font-weight:600;
+  }
+  .current-flag{
+    display:inline-block;
+    font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase;
+    color:var(--gold);
+    background:var(--gold-soft);
+    border-radius:999px;
+    padding:3px 10px;
+    margin-left:10px;
+    vertical-align:middle;
+  }
+
+  /* ---- section groups ---- */
+  .section{
+    margin-top:28px;
+  }
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:2px;
+  }
+  .section-head h3{
+    font-size:12.5px;
+    font-weight:700;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--secondary);
+    margin:0;
+  }
+  .section-head .count{
+    font-size:12px;
+    color:var(--text-muted);
+    font-weight:600;
+  }
+
+  /* ---- cards ---- */
+  .cards{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    margin-top:18px;
+  }
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:18px 20px;
+    box-shadow:var(--shadow);
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .card-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .tag{
+    display:inline-block;
+    font-size:11.5px;
+    font-weight:700;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    padding:4px 10px;
+    border-radius:999px;
+  }
+  .tag.fellowship{ background:var(--tint-soft); color:var(--secondary); }
+  .tag.scholarship{ background:var(--gold-soft); color:var(--gold); }
+  .tag.phd{ background:var(--lavender-soft); color:var(--lavender); }
+  .tag.internship, .tag.job{ background:var(--surface-alt); color:var(--text-muted); }
+
+  .deadline{
+    font-size:13px;
+    font-weight:700;
+    padding:4px 10px;
+    border-radius:999px;
+    white-space:nowrap;
+    font-variant-numeric:tabular-nums;
+  }
+  .deadline.urgent{ background:var(--coral-soft); color:var(--coral); }
+  .deadline.soon{ background:var(--gold-soft); color:var(--gold); }
+  .deadline.open{ background:var(--tint-soft); color:var(--secondary); }
+  .deadline.past{ background:var(--surface-alt); color:var(--text-muted); }
+
+  .card h3{
+    font-family:"EB Garamond", Georgia, serif;
+    font-size:19.5px;
+    font-weight:600;
+    margin:0;
+    line-height:1.3;
+    color:var(--text);
+  }
+  .card .inst{
+    font-size:14px;
+    color:var(--text-muted);
+    font-weight:600;
+  }
+  .card .loc{
+    font-size:13.5px;
+    color:var(--text-muted);
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .card .loc svg{ width:13px; height:13px; flex:0 0 auto; opacity:0.75; }
+
+  .card-links{
+    display:flex; gap:10px; flex-wrap:wrap; margin-top:2px;
+  }
+  .btn{
+    font-size:13.5px;
+    font-weight:700;
+    text-decoration:none;
+    padding:8px 15px;
+    border-radius:8px;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+  }
+  .btn.primary{ background:var(--primary); color:var(--bg); }
+  .btn.ghost{ background:transparent; color:var(--secondary); border:1px solid var(--border); }
+  .btn:hover{ filter:brightness(1.06); }
+  .btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+
+  /* ---- boards panel ---- */
+  .boards{
+    margin-top:28px;
+    background:var(--surface-alt);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:16px 18px;
+  }
+  .boards h3{
+    font-size:12.5px;
+    font-weight:700;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--secondary);
+    margin:0 0 10px;
+  }
+  .boards ul{
+    margin:0;
+    padding:0;
+    list-style:none;
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+  }
+  .boards li{
+    font-size:13.5px;
+    line-height:1.5;
+    color:var(--text-muted);
+  }
+  .boards a{
+    font-weight:700;
+    color:var(--secondary);
+    text-decoration:none;
+    border-bottom:1px solid transparent;
+  }
+  .boards a:hover{ border-bottom-color:var(--secondary); }
+
+  /* ---- notes ---- */
+  .notes{
+    margin-top:22px;
+    background:var(--tint-soft);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:16px 18px;
+    font-size:13.5px;
+    line-height:1.6;
+    color:var(--text-muted);
+  }
+  .notes strong{ color:var(--text); }
+
+  .empty{
+    padding:40px 0;
+    color:var(--text-muted);
+    font-size:15px;
+  }
+
+  footer{
+    margin-top:56px;
+    padding-top:20px;
+    border-top:1px solid var(--border);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:8px;
+    font-size:12.5px;
+    color:var(--text-muted);
+  }
+  footer .brand{ font-weight:700; color:var(--primary); }
+
+  @media (max-width:520px){
+    body{ padding:0 16px 48px; }
+    header.mast{ padding-top:40px; }
+    .card-top{ flex-direction:row; }
+  }
+
+  @media (prefers-reduced-motion:no-preference){
+    .card{ animation:rise .35s ease both; }
+    .card:nth-child(2){ animation-delay:.03s; }
+    .card:nth-child(3){ animation-delay:.06s; }
+    .card:nth-child(4){ animation-delay:.09s; }
+    .card:nth-child(5){ animation-delay:.12s; }
+    .card:nth-child(6){ animation-delay:.15s; }
+    @keyframes rise{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:translateY(0);} }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <svg class="contours" viewBox="0 0 340 340" fill="none" aria-hidden="true">
+    <circle cx="170" cy="150" r="60" stroke="var(--tint)" stroke-width="1.2"/>
+    <circle cx="170" cy="150" r="95" stroke="var(--tint)" stroke-width="1.2"/>
+    <circle cx="170" cy="150" r="130" stroke="var(--tint)" stroke-width="1.2"/>
+    <circle cx="170" cy="150" r="165" stroke="var(--tint)" stroke-width="1.2"/>
+  </svg>
+
+  <header class="mast">
+    <p class="eyebrow">Opportunity Radar</p>
+    <h1>One Health opportunities</h1>
+    <p class="dek">Fellowships, scholarships, PhD positions and internships across One Health, veterinary public health and global health, refreshed every week.</p>
+    <p class="disclaimer">Compiled with AI-assisted research and checked against each program's official page — 1healthvet is not affiliated with, endorsed by, or recruiting on behalf of any institution listed here.</p>
+  </header>
+
+  <nav class="week-rail-shell" aria-label="Select week">
+    <div class="week-rail" id="weekRail"></div>
+  </nav>
+
+  <main id="weekView"></main>
+
+  <footer>
+    <span class="brand">1healthvet</span>
+    <span id="lastUpdated"></span>
+  </footer>
+</div>
+
+<script>
+  // ---- data: one entry per compiled week, newest first isn't required — sorted at render time ----
+  const WEEKS = [
+    {
+      id: "2026-09-10",
+      dateRangeLabel: "Sept 7–13, 2026",
+      sections: [
+        {
+          key: "scholarships",
+          label: "Scholarships & Fellowships",
+          opportunities: [
+            {
+              title: "SEAOHUN 2026 ASEAN One Health Climate Fellowship",
+              detail: "Early–mid career, ~4 months, full support",
+              institution: "Southeast Asia One Health University Network (SEAOHUN)",
+              location: "Southeast Asia (Cambodia, Indonesia, Laos, Malaysia, Philippines, Thailand, Vietnam)",
+              deadline: "2026-09-20",
+              type: "fellowship",
+              apply: "https://www.seaohun.org/fellowship",
+              info: null
+            },
+            {
+              title: "AWARD Leadership Program 2026/2027",
+              detail: "For women in agricultural sciences, virtual delivery",
+              institution: "African Women in Agricultural Research and Development (AWARD)",
+              location: "Sub-Saharan Africa (Benin, Burkina Faso, Côte d'Ivoire, Ethiopia, Ghana, Kenya, Malawi, Nigeria, Senegal, Tanzania, Zambia)",
+              deadline: "2026-09-20",
+              type: "fellowship",
+              apply: "https://awardfellowships.org/emerging-women-in-science/",
+              info: null
+            },
+            {
+              title: "Okavango River Basin Research RFP",
+              detail: "Field research / conservation funding",
+              institution: "National Geographic Society",
+              location: "Global (18+, strong local-context requirement)",
+              deadline: "2026-09-23",
+              type: "fellowship",
+              apply: "https://funding.nationalgeographic.org/",
+              info: null
+            },
+            {
+              title: "HBNU Fogarty Global Health Fellowship",
+              detail: "12-month mentored research fellowship in an LMIC; open to pre/postdoctoral students & early-career LMIC researchers",
+              institution: "NIH Fogarty International Center (4 US universities + 21 LMIC partners)",
+              location: "Placements in LMICs",
+              deadline: "2026-09-25",
+              type: "fellowship",
+              apply: "https://hsph.harvard.edu/fellowship-special-program/hbnu-fogarty/",
+              info: null
+            },
+            {
+              title: "Doctor of Public Health (DrPH) Scholarship 2027–2028",
+              detail: "7+ fully funded spots, for African public health leaders",
+              institution: "University of Toronto — Dalla Lana School of Public Health (Mastercard Foundation / Africa Health Collaborative)",
+              location: "Toronto, Canada (Sub-Saharan African citizens/residents only)",
+              deadline: "2026-10-01",
+              type: "scholarship",
+              apply: "https://africahealthcollaborative.org/2026/08/20/2027-2028-doctor-of-public-health-scholarships-open/",
+              info: null
+            },
+            {
+              title: "“The Human Thread” RFP",
+              detail: "Research/storytelling funding — check current scope for health/conservation fit",
+              institution: "National Geographic Society",
+              location: "Global (18+)",
+              deadline: null,
+              deadlineLabel: "Oct 1 – Dec 1, 2026",
+              type: "fellowship",
+              apply: "https://funding.nationalgeographic.org/",
+              info: null
+            },
+            {
+              title: "Chevening Scholarship 2027/2028",
+              detail: "Fully funded master's, any field incl. public/global health, One Health",
+              institution: "UK Government (FCDO)",
+              location: "UK study, open to applicants worldwide",
+              deadline: "2026-10-06",
+              type: "scholarship",
+              apply: "https://www.chevening.org/apply/",
+              info: null
+            },
+            {
+              title: "Gates Cambridge Scholarship — 2027 intake",
+              detail: "Fully funded postgrad study, incl. MPhil/PhD in public health, epidemiology, veterinary medicine",
+              institution: "University of Cambridge / Gates Foundation",
+              location: "Cambridge, UK — non-UK applicants",
+              deadline: null,
+              deadlineLabel: "Oct 14 (US, US-resident) · Dec 8 / Jan 6 (all other, course-dependent)",
+              type: "scholarship",
+              apply: "https://www.gatescambridge.org/apply/",
+              info: null
+            },
+            {
+              title: "Commonwealth Master's Scholarships 2027/28",
+              detail: "Agency-nominated, full funding, financial-need based",
+              institution: "Commonwealth Scholarship Commission (UK)",
+              location: "UK study, open to 40+ eligible Commonwealth countries",
+              deadline: "2026-10-20",
+              type: "scholarship",
+              apply: null,
+              info: "https://cscuk.fcdo.gov.uk/scholarships/commonwealth-masters-scholarships/"
+            },
+            {
+              title: "Rufford Small Grants for Nature Conservation",
+              detail: "For MSc holders/grads within 3 years, field conservation projects",
+              institution: "The Rufford Foundation (UK)",
+              location: "Global (eligible-country list; not for undergrads)",
+              deadline: null,
+              deadlineLabel: "Rolling (1 application per 12 months)",
+              type: "fellowship",
+              apply: "https://apply.ruffordsmallgrants.org/",
+              info: null
+            },
+            {
+              title: "DAAD EPOS Scholarships",
+              detail: "Master's study in Germany, development-relevant fields incl. public/veterinary public health",
+              institution: "German Academic Exchange Service (DAAD)",
+              location: "Germany, for students from developing countries",
+              deadline: null,
+              deadlineLabel: "Varies by programme (~Aug–Oct 2026) — check programme page",
+              type: "scholarship",
+              apply: null,
+              info: "https://www.daad.de/en/study-and-research-in-germany/scholarships/"
+            },
+            {
+              title: "Fulbright Foreign Student Program 2027–2028",
+              detail: "Fully funded master's/professional study, any field incl. public health, epidemiology, vet science",
+              institution: "US Department of State (via national Fulbright Commissions)",
+              location: "Global, country-specific eligibility & deadlines",
+              deadline: null,
+              deadlineLabel: "Varies by country (~Sept–Dec 2026) — check your Fulbright Commission",
+              type: "scholarship",
+              apply: null,
+              info: "https://us.fulbrightonline.org/applicants"
+            }
+          ]
+        },
+        {
+          key: "phd",
+          label: "PhD Opportunities",
+          opportunities: [
+            {
+              title: "K. Lisa Yang Wildlife Health Fellows Program",
+              detail: "DVM-to-PhD track, wildlife health/conservation medicine, up to 5 yrs funded. Cycle opens Sept 15",
+              institution: "Cornell University College of Veterinary Medicine",
+              location: "Ithaca, NY, USA",
+              deadline: "2026-12-01",
+              type: "phd",
+              apply: null,
+              info: "https://wildlife.cornell.edu/resources/k-lisa-yang-wildlife-health-fellows-program"
+            },
+            {
+              title: "PhD in Epidemiology — One Health emphasis available",
+              detail: "Fall 2027 entry",
+              institution: "University of Washington, Dept. of Epidemiology",
+              location: "Seattle, WA, USA",
+              deadline: "2026-12-01",
+              type: "phd",
+              apply: "https://epi.washington.edu/admissions/apply/",
+              info: null
+            },
+            {
+              title: "PhD in Epidemiology (One Health Institute–affiliated)",
+              detail: "Priority date for funding — general deadline 15 Feb 2027",
+              institution: "UC Davis, Graduate Group in Epidemiology",
+              location: "Davis, CA, USA",
+              deadline: "2026-12-15",
+              type: "phd",
+              apply: "https://www.epi.ucdavis.edu/admissions",
+              info: null
+            },
+            {
+              title: "PhD in Population Medicine – Epidemiology",
+              detail: "Infectious-disease epidemiology risk factors; supervisor Dr. Michele Guerin",
+              institution: "University of Guelph, Ontario Veterinary College",
+              location: "Guelph, Canada",
+              deadline: null,
+              deadlineLabel: "Rolling",
+              type: "phd",
+              apply: null,
+              info: "https://www.uoguelph.ca/ovc/current-opportunities/phd_population_medicine-epidemiology"
+            },
+            {
+              title: "PhD Position — One Health Approach to Antimicrobial Resistance",
+              detail: "Environmental AMR; supervisor Dr. Xu Li",
+              institution: "University of Nebraska–Lincoln, Civil & Environmental Engineering",
+              location: "Lincoln, NE, USA",
+              deadline: null,
+              deadlineLabel: "Rolling, reviewed until filled",
+              type: "phd",
+              apply: null,
+              info: "https://engineering.unl.edu/cee/prospective-students/"
+            }
+          ]
+        },
+        {
+          key: "internships",
+          label: "Internships & Entry–Mid Roles",
+          opportunities: [
+            {
+              title: "Young Professionals Program",
+              detail: "2-yr mid-career track incl. Health, Nutrition & Population",
+              institution: "World Bank Group",
+              location: "Washington, DC (global applicant pool)",
+              deadline: "2026-09-30",
+              type: "job",
+              apply: "https://www.worldbank.org/ext/en/careers/talent-programs/young-professionals-program",
+              info: null
+            },
+            {
+              title: "Research Assistant / Doctoral Candidate — Data Integration & Analytics",
+              detail: "3-yr fixed term",
+              institution: "World Organisation for Animal Health (WOAH)",
+              location: "Paris, France",
+              deadline: "2026-09-30",
+              type: "job",
+              apply: "https://www.woah.org/en/offer-type/open-position/",
+              info: null
+            },
+            {
+              title: "Biodiversity Project Administrator",
+              detail: null,
+              institution: "IUCN, EU Representative Office",
+              location: "Brussels, Belgium",
+              deadline: "2026-09-20",
+              type: "job",
+              apply: "https://hrms.iucn.org/vacancy/7701",
+              info: null
+            },
+            {
+              title: "EPIET / EUPHEM Fellowship Programme — Cohort 2027",
+              detail: "2-yr paid fellowship; EU/EEA nationals only, master's + 2-3 yrs exp, B2 in two EU/EEA languages",
+              institution: "European Centre for Disease Prevention and Control (ECDC)",
+              location: "Placements across EU/EEA",
+              deadline: "2026-10-26",
+              type: "fellowship",
+              apply: "https://ecdc.europa.eu/en/about-us/work-us/call-fellowship-programme-epiet-and-euphem-paths",
+              info: null
+            },
+            {
+              title: "Climate and Health Intern",
+              detail: "Data analysis on air pollution/health, COP31 & pandemic-prevention prep",
+              institution: "UNDP, HIV and Health Pillar",
+              location: "Remote/home-based",
+              deadline: null,
+              deadlineLabel: "Not confirmed — verify on listing",
+              type: "internship",
+              apply: "https://www.unjobnet.org/apply/86374247",
+              info: null
+            },
+            {
+              title: "One Health Trust Internship Program",
+              detail: "Research, communications or admin tracks, remote or in-office",
+              institution: "One Health Trust",
+              location: "Remote or OHT offices (applicant's choice)",
+              deadline: null,
+              deadlineLabel: "Rolling / ongoing",
+              type: "internship",
+              apply: null,
+              info: "https://onehealthtrust.org/academic-training/internship-program/"
+            },
+            {
+              title: "EcoHealth Alliance Internships",
+              detail: "Undergrad/grad/vet students; policy, science, tech, development teams; 3 wks–6 months",
+              institution: "EcoHealth Alliance",
+              location: "New York, USA (remote options vary)",
+              deadline: null,
+              deadlineLabel: "Rolling / year-round",
+              type: "internship",
+              apply: null,
+              info: "https://www.ecohealthalliance.org/career/internships"
+            }
+          ]
+        }
+      ],
+      boards: [
+        { name: "ILRI", url: "https://careers.ilri.org", note: "internships and consultancies across livestock/One Health programs, Nairobi and other hubs" },
+        { name: "International Vaccine Institute", url: "https://ivi.int/careers", note: "ongoing internship program plus rotating entry/mid roles, Seoul" },
+        { name: "PATH", url: "https://path.org/careers", note: "hires continuously across global health disciplines, entry to experienced level" },
+        { name: "CDC ORISE / Zintellect", url: "https://zintellect.com", note: "refreshed regularly with epidemiology, environmental health and disaster-epi fellowships — worth a weekly check" },
+        { name: "WHO careers", url: "https://careers.who.int", note: "internship postings appear individually on a rolling basis" }
+      ],
+      notes: "This batch dug deeper into university/lab PhD pages and professor-level project postings — most named project studentships found had already-closed deadlines (several UK BBSRC/NERC DTP projects, a Norway rodent-zoonoses PhD, a Melbourne vector-borne zoonoses PhD), so only genuinely open or rolling ones made the list; worth re-checking FindAPhD, jobs.ac.uk and EURAXESS next week. A Helmholtz Centre for Infection Research “Joint One Lab” call for 16 fully funded PhD positions was found but its 11 Sept deadline had essentially already passed — flagging in case it reopens. Confirmed no current openings at Africa CDC, WWF BRIDGE (2026 cohort filled), CDC PHAP and Global Health Corps US Leadership Accelerator (closed) — excluded rather than listing stale postings. Some deadlines (DAAD EPOS, Fulbright, UNDP internship) vary by country/programme or couldn't be pinned down exactly — double-check the official page before applying. Compiled via web search on 10 Sept 2026."
+    }
+  ];
+
+  const TYPE_LABEL = { fellowship: "Fellowship", scholarship: "Scholarship", phd: "PhD", internship: "Internship", job: "Job" };
+  const locIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>';
+
+  function fmtDate(iso){
+    const d = new Date(iso + "T00:00:00");
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  }
+
+  function deadlineMeta(o){
+    if(!o.deadline){
+      return { label: o.deadlineLabel || "Rolling", cls: "open" };
+    }
+    const today = new Date(); today.setHours(0,0,0,0);
+    const dl = new Date(o.deadline + "T00:00:00");
+    const days = Math.round((dl - today) / 86400000);
+    const label = fmtDate(o.deadline);
+    if(days < 0) return { label: "Closed " + label, cls: "past" };
+    if(days <= 7) return { label: "Due " + label, cls: "urgent" };
+    if(days <= 21) return { label: "Due " + label, cls: "soon" };
+    return { label: "Due " + label, cls: "open" };
+  }
+
+  function cardHTML(o){
+    const dl = deadlineMeta(o);
+    const links = [];
+    if(o.apply) links.push('<a class="btn primary" href="' + o.apply + '" target="_blank" rel="noopener">Apply →</a>');
+    if(o.info) links.push('<a class="btn ghost" href="' + o.info + '" target="_blank" rel="noopener">Program details</a>');
+    return (
+      '<article class="card">' +
+        '<div class="card-top">' +
+          '<span class="tag ' + o.type + '">' + (TYPE_LABEL[o.type] || o.type) + '</span>' +
+          '<span class="deadline ' + dl.cls + '">' + dl.label + '</span>' +
+        '</div>' +
+        '<h3>' + o.title + '</h3>' +
+        '<div class="inst">' + o.institution + (o.detail ? ' · ' + o.detail : '') + '</div>' +
+        '<div class="loc">' + locIcon + '<span>' + o.location + '</span></div>' +
+        '<div class="card-links">' + links.join('') + '</div>' +
+      '</article>'
+    );
+  }
+
+  function weekPillLabel(w){
+    // "Sept 7–13, 2026" -> "Sept 7–13"
+    return w.dateRangeLabel.replace(/, \d{4}$/, "");
+  }
+
+  function render(){
+    const sorted = [...WEEKS].sort((a,b) => b.id.localeCompare(a.id));
+    const currentId = sorted[0] ? sorted[0].id : null;
+    let selectedId = currentId;
+
+    const rail = document.getElementById("weekRail");
+    const view = document.getElementById("weekView");
+
+    function renderRail(){
+      rail.innerHTML = sorted.map(w =>
+        '<button class="week-pill" type="button" data-id="' + w.id + '" aria-pressed="' + (w.id === selectedId) + '">' +
+          '<span class="dot"></span>' + weekPillLabel(w) +
+        '</button>'
+      ).join('');
+      rail.querySelectorAll(".week-pill").forEach(btn => {
+        btn.addEventListener("click", () => {
+          selectedId = btn.dataset.id;
+          renderRail();
+          renderView();
+        });
+      });
+    }
+
+    function sectionHTML(s){
+      if(!s.opportunities.length) return '';
+      return (
+        '<div class="section">' +
+          '<div class="section-head"><h3>' + s.label + '</h3><span class="count">' + s.opportunities.length + '</span></div>' +
+          '<div class="cards">' + s.opportunities.map(cardHTML).join('') + '</div>' +
+        '</div>'
+      );
+    }
+
+    function boardsHTML(boards){
+      if(!boards || !boards.length) return '';
+      return (
+        '<div class="boards">' +
+          '<h3>Boards worth checking regularly</h3>' +
+          '<ul>' + boards.map(b =>
+            '<li><a href="' + b.url + '" target="_blank" rel="noopener">' + b.name + '</a> — ' + b.note + '</li>'
+          ).join('') + '</ul>' +
+        '</div>'
+      );
+    }
+
+    function renderView(){
+      const w = sorted.find(x => x.id === selectedId);
+      if(!w){
+        view.innerHTML = '<p class="empty">No opportunities logged yet — check back next week.</p>';
+        return;
+      }
+      const isCurrent = w.id === currentId;
+      const total = w.sections.reduce((n, s) => n + s.opportunities.length, 0);
+      view.innerHTML =
+        '<div class="week-head">' +
+          '<h2>Week of ' + w.dateRangeLabel + (isCurrent ? '<span class="current-flag">This week</span>' : '') + '</h2>' +
+          '<span class="week-count">' + total + ' opportunit' + (total === 1 ? 'y' : 'ies') + '</span>' +
+        '</div>' +
+        w.sections.map(sectionHTML).join('') +
+        boardsHTML(w.boards) +
+        (w.notes ? '<div class="notes"><strong>Notes on this batch:</strong> ' + w.notes + '</div>' : '');
+    }
+
+    renderRail();
+    renderView();
+
+    document.getElementById("lastUpdated").textContent =
+      "Latest batch: week of " + sorted[0].dateRangeLabel;
+  }
+
+  render();
+</script>
+</body>
+</html>
