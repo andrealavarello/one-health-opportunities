@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Opportunity Radar</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Source+Sans+3:wght@400;500;600;700&family=Caveat:wght@500;600&display=swap">
+<style>
+  :root{
+    --bg:#FAF9F6;
+    --surface:#FFFFFF;
+    --surface-alt:#EFEBE3;
+    --border:#E1DCD1;
+    --text:#2D2D2D;
+    --text-muted:#6B7280;
+    --primary:#0B2545;
+    --secondary:#1E4E79;
+    --tint:#A9D6E5;
+    --tint-soft:#EAF4F7;
+    --gold:#B3830F;
+    --gold-soft:#FBF0D2;
+    --coral:#D8503F;
+    --coral-soft:#FCE7E3;
+    --lavender:#8C77C2;
+    --lavender-soft:#F0EBFA;
+    --focus:#1E4E79;
+    --shadow: 0 1px 2px rgba(11,37,69,0.06), 0 8px 24px -12px rgba(11,37,69,0.18);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1D33;
+      --surface:#0F2743;
+      --surface-alt:#123054;
+      --border:#1E3F63;
+      --text:#EAEEF3;
+      --text-muted:#9FB2C7;
+      --primary:#EAEEF3;
+      --secondary:#8FC6E8;
+      --tint:#274E6E;
+      --tint-soft:#173355;
+      --gold:#E8C158;
+      --gold-soft:#2C260F;
+      --coral:#F0897A;
+      --coral-soft:#3A1D19;
+      --lavender:#C3B2EC;
+      --lavender-soft:#251E3C;
+      --focus:#8FC6E8;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 28px -14px rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1D33;
+    --surface:#0F2743;
+    --surface-alt:#123054;
+    --border:#1E3F63;
+    --text:#EAEEF3;
+    --text-muted:#9FB2C7;
+    --primary:#EAEEF3;
+    --secondary:#8FC6E8;
+    --tint:#274E6E;
+    --tint-soft:#173355;
+    --gold:#E8C158;
+    --gold-soft:#2C260F;
+    --coral:#F0897A;
+    --coral-soft:#3A1D19;
+    --lavender:#C3B2EC;
+    --lavender-soft:#251E3C;
+    --focus:#8FC6E8;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 28px -14px rgba(0,0,0,0.6);
+  }
+
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:"Source Sans 3", "Source Sans Pro", -apple-system, "Segoe UI", sans-serif;
+    padding:0 20px 64px;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{ color:inherit; }
+  .wrap{ max-width:880px; margin:0 auto; position:relative; }
+
+  /* ---- contour-line brand motif ---- */
+  .contours{
+    position:absolute; top:0; right:-40px; width:340px; height:340px;
+    opacity:0.5; pointer-events:none; z-index:0;
+  }
+  @media (max-width:700px){ .contours{ display:none; } }
+
+  /* ---- masthead ---- */
+  header.mast{
+    position:relative;
+    padding-top:56px;
+    padding-bottom:36px;
+    z-index:1;
+  }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:13px; font-weight:700; letter-spacing:0.11em; text-transform:uppercase;
+    color:var(--secondary);
+    margin:0 0 14px;
+  }
+  .eyebrow::before{ content:"🌍"; font-size:14px; }
+  h1{
+    font-family:"EB Garamond", Georgia, serif;
+    font-weight:600;
+    font-size:clamp(34px, 6vw, 52px);
+    line-height:1.05;
+    margin:0 0 14px;
+    color:var(--primary);
+    text-wrap:balance;
+    max-width:14ch;
+  }
+  .dek{
+    font-size:17px;
+    line-height:1.55;
+    color:var(--text-muted);
+    max-width:52ch;
+    margin:0;
+  }
+  .disclaimer{
+    font-size:12.5px;
+    line-height:1.5;
+    color:var(--text-muted);
+    opacity:0.8;
+    max-width:52ch;
+    margin:10px 0 0;
+  }
+  .signature{
+    font-family:"Caveat", cursive;
+    font-size:19px;
+    color:var(--gold);
+    margin-top:14px;
+    display:inline-block;
+  }
+
+  /* ---- week rail ---- */
+  .week-rail-shell{
+    margin-top:34px;
+    border-top:1px solid var(--border);
+    border-bottom:1px solid var(--border);
+    padding:14px 0;
+  }
+  .week-rail{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    scrollbar-width:none;
+    padding:2px 2px;
+  }
+  .week-rail::-webkit-scrollbar{ display:none; }
+  .week-pill{
+    flex:0 0 auto;
+    border:1px solid var(--border);
+    background:var(--surface);
+    color:var(--text-muted);
+    border-radius:999px;
+    padding:9px 16px;
+    font-size:13.5px;
+    font-weight:600;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .week-pill:hover{ border-color:var(--secondary); color:var(--text); }
+  .week-pill:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .week-pill[aria-pressed="true"]{
+    background:var(--primary);
+    border-color:var(--primary);
+    color:var(--bg);
+  }
+  .week-pill .dot{
+    display:inline-block; width:6px; height:6px; border-radius:50%;
+    background:var(--gold); margin-right:7px; vertical-align:middle;
+  }
+  .week-pill[aria-pressed="true"] .dot{ background:var(--bg); }
+
+  /* ---- current week banner ---- */
+  .week-head{
+    display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:10px;
+    margin:30px 0 6px;
+  }
+  .week-head h2{
+    font-family:"EB Garamond", Georgia, serif;
+    font-weight:600;
+    font-size:26px;
+    margin:0;
+    color:var(--primary);
+  }
+  .week-count{
+    font-size:13.5px;
+    color:var(--text-muted);
+    font-weight:600;
+  }
+  .current-flag{
+    display:inline-block;
+    font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase;
+    color:var(--gold);
+    background:var(--gold-soft);
+    border-radius:999px;
+    padding:3px 10px;
+    margin-left:10px;
+    vertical-align:middle;
+  }
+
+  /* ---- section groups ---- */
+  .section{
+    margin-top:28px;
+  }
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:2px;
+  }
+  .section-head h3{
+    font-size:12.5px;
+    font-weight:700;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--secondary);
+    margin:0;
+  }
+  .section-head .count{
+    font-size:12px;
+    color:var(--text-muted);
+    font-weight:600;
+  }
+
+  /* ---- cards ---- */
+  .cards{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    margin-top:18px;
+  }
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:18px 20px;
+    box-shadow:var(--shadow);
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .card-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .tag{
+    display:inline-block;
+    font-size:11.5px;
+    font-weight:700;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    padding:4px 10px;
+    border-radius:999px;
+  }
+  .tag.fellowship{ background:var(--tint-soft); color:var(--secondary); }
+  .tag.scholarship{ background:var(--gold-soft); color:var(--gold); }
+  .tag.phd{ background:var(--lavender-soft); color:var(--lavender); }
+  .tag.internship, .tag.job{ background:var(--surface-alt); color:var(--text-muted); }
+
+  .deadline{
+    font-size:13px;
+    font-weight:700;
+    padding:4px 10px;
+    border-radius:999px;
+    white-space:nowrap;
+    font-variant-numeric:tabular-nums;
+  }
+  .deadline.urgent{ background:var(--coral-soft); color:var(--coral); }
+  .deadline.soon{ background:var(--gold-soft); color:var(--gold); }
+  .deadline.open{ background:var(--tint-soft); color:var(--secondary); }
+  .deadline.past{ background:var(--surface-alt); color:var(--text-muted); }
+
+  .card h3{
+    font-family:"EB Garamond", Georgia, serif;
+    font-size:19.5px;
+    font-weight:600;
+    margin:0;
+    line-height:1.3;
+    color:var(--text);
+  }
+  .card .inst{
+    font-size:14px;
+    color:var(--text-muted);
+    font-weight:600;
+  }
+  .card .loc{
+    font-size:13.5px;
+    color:var(--text-muted);
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .card .loc svg{ width:13px; height:13px; flex:0 0 auto; opacity:0.75; }
+
+  .card-links{
+    display:flex; gap:10px; flex-wrap:wrap; margin-top:2px;
+  }
+  .btn{
+    font-size:13.5px;
+    font-weight:700;
+    text-decoration:none;
+    padding:8px 15px;
+    border-radius:8px;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+  }
+  .btn.primary{ background:var(--primary); color:var(--bg); }
+  .btn.ghost{ background:transparent; color:var(--secondary); border:1px solid var(--border); }
+  .btn:hover{ filter:brightness(1.06); }
+  .btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+
+  /* ---- boards panel ---- */
+  .boards{
+    margin-top:28px;
+    background:var(--surface-alt);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:16px 18px;
+  }
+  .boards h3{
+    font-size:12.5px;
+    font-weight:700;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--secondary);
+    margin:0 0 10px;
+  }
+  .boards ul{
+    margin:0;
+    padding:0;
+    list-style:none;
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+  }
+  .boards li{
+    font-size:13.5px;
+    line-height:1.5;
+    color:var(--text-muted);
+  }
+  .boards a{
+    font-weight:700;
+    color:var(--secondary);
+    text-decoration:none;
+    border-bottom:1px solid transparent;
+  }
+  .boards a:hover{ border-bottom-color:var(--secondary); }
+
+  .empty{
+    padding:40px 0;
+    color:var(--text-muted);
+    font-size:15px;
+  }
+
+  footer{
+    margin-top:56px;
+    padding-top:20px;
+    border-top:1px solid var(--border);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:8px;
+    font-size:12.5px;
+    color:var(--text-muted);
+  }
+  footer .brand{ font-weight:700; color:var(--primary); }
+
+  @media (max-width:520px){
+    body{ padding:0 16px 48px; }
+    header.mast{ padding-top:40px; }
+    .card-top{ flex-direction:row; }
+  }
+
+  @media (prefers-reduced-motion:no-preference){
+    .card{ animation:rise .35s ease both; }
+    .card:nth-child(2){ animation-delay:.03s; }
+    .card:nth-child(3){ animation-delay:.06s; }
+    .card:nth-child(4){ animation-delay:.09s; }
+    .card:nth-child(5){ animation-delay:.12s; }
+    .card:nth-child(6){ animation-delay:.15s; }
+    @keyframes rise{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:translateY(0);} }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <svg class="contours" viewBox="0 0 340 340" fill="none" aria-hidden="true">
+    <circle cx="170" cy="150" r="60" stroke="var(--tint)" stroke-width="1.2"/>
+    <circle cx="170" cy="150" r="95" stroke="var(--tint)" stroke-width="1.2"/>
+    <circle cx="170" cy="150" r="130" stroke="var(--tint)" stroke-width="1.2"/>
+    <circle cx="170" cy="150" r="165" stroke="var(--tint)" stroke-width="1.2"/>
+  </svg>
+
+  <header class="mast">
+    <p class="eyebrow">Opportunity Radar</p>
+    <h1>One Health opportunities</h1>
+    <p class="dek">Fellowships, scholarships, PhD positions and internships across One Health, veterinary public health and global health, refreshed every week.</p>
+    <p class="disclaimer">Compiled with AI-assisted research and checked against each program's official page — 1healthvet is not affiliated with, endorsed by, or recruiting on behalf of any institution listed here.</p>
+  </header>
+
+  <nav class="week-rail-shell" aria-label="Select week">
+    <div class="week-rail" id="weekRail"></div>
+  </nav>
+
+  <main id="weekView"></main>
+
+  <footer>
+    <span class="brand">1healthvet</span>
+    <span id="lastUpdated"></span>
+  </footer>
+</div>
+
+<script>
+  // ---- data: one entry per compiled week, newest first isn't required — sorted at render time ----
+  const WEEKS = [
+    {
+      id: "2026-10-05",
+      dateRangeLabel: "Oct 5–11, 2026",
+      sections: [
+        {
+          key: "scholarships",
+          label: "Scholarships & Fellowships",
+          opportunities: [
+            {
+              title: "MOPGA 2027 Research Fellowship",
+              detail: "12-month fully funded research stay in France (€2,500/month + €500 relocation + health insurance) for early-career researchers; priority areas include Climate Change & Sustainability Science, environmental societal challenges and One Health. PhD within the last 5 years, non-French citizens",
+              institution: "Campus France (MOPGA programme, French Ministry)",
+              location: "Host labs across France",
+              deadline: "2026-12-15",
+              type: "fellowship",
+              apply: "https://campusfrance.smapply.io/prog/mopga-2027/",
+              info: null
+            },
+            {
+              title: "Harvard Environmental Fellows Program — 2027 cohort",
+              detail: "2-year postdoctoral fellowship ($92,000/yr salary + benefits), all disciplines incl. public health, economics, policy and sciences. Doctorate awarded May 2023–Aug 2027; a committed Harvard faculty host is required before applying",
+              institution: "Harvard University Center for the Environment",
+              location: "Cambridge, MA, USA",
+              deadline: "2026-12-01",
+              type: "fellowship",
+              apply: null,
+              info: "https://www.environment.harvard.edu/environmental-fellows-program"
+            },
+            {
+              title: "DAAD Scholarship — MSc in Environmental Health",
+              detail: "Study start Sept 2027; monthly stipend, tuition, research allowance. Women, refugees and candidates from marginalised regions encouraged. Sub-Saharan African nationals/residents only, 2:1-equivalent or better",
+              institution: "Jimma University (DAAD-funded)",
+              location: "Jimma, Ethiopia",
+              deadline: "2026-11-12",
+              type: "scholarship",
+              apply: "https://www2.daad.de/deutschland/stipendium/datenbank/en/21148-scholarship-database/?detail=10000486",
+              info: null
+            }
+          ]
+        },
+        {
+          key: "phd",
+          label: "PhD Opportunities",
+          opportunities: [
+            {
+              title: "Africa Climate Collaborative Doctoral Training Fellowships 2027",
+              detail: "12 fully funded PhD fellowships in Climate and Development (year 1 coursework, then 3 years of research) — broader climate fit than strictly One Health. African citizens only, master's required, under 35 on 1 Feb 2027",
+              institution: "University of Cape Town — African Climate & Development Initiative",
+              location: "Cape Town, South Africa",
+              deadline: "2026-10-15",
+              deadlineLabel: "Due Oct 15, 2026, 23:00 SAST",
+              type: "phd",
+              apply: "https://acdi.uct.ac.za/africaclimatecollaborative/phd-fellowships-climate-and-development",
+              info: null
+            },
+            {
+              title: "Doctoral Candidate — Tick Monitoring in Germany (2 positions)",
+              detail: "Fixed-term to 31 Dec 2029 (65% TVöD-Bund E13). Field collection of ticks (incl. bird ticks, with a citizen-science component), pathogen screening and characterization; doctorate supported on site. Life-sciences degree; German and English required, driver's licence needed; entomology and molecular-biology (PCR) skills an advantage",
+              institution: "Friedrich-Loeffler-Institut (FLI), Institute of Infectology",
+              location: "Greifswald–Insel Riems, Germany",
+              deadline: "2026-10-18",
+              type: "phd",
+              apply: "https://www.fli.de/en/career/vacancies/vacancy/wiss-mitarbeiterin-wiss-mitarbeiter-w-m-d-im-institut-fuer-infektionsmedizin/",
+              info: null
+            }
+          ]
+        },
+        {
+          key: "internships",
+          label: "Internships & Entry–Mid Roles",
+          opportunities: [
+            {
+              title: "Scientific Staff Member — African & Classical Swine Fever Diagnostics",
+              detail: "48-month full-time post (up to TVöD E14) on ASF/CSF diagnostics, strain characterization, pathogenesis and vaccine analysis. Requires a completed doctorate, ASF molecular/serological expertise and BSL-4 animal-facility experience; fluent German and English",
+              institution: "Friedrich-Loeffler-Institut (FLI), Institute of Diagnostic Virology",
+              location: "Greifswald–Insel Riems, Germany",
+              deadline: "2026-10-09",
+              type: "job",
+              apply: "https://www.fli.de/en/career/vacancies/vacancy/wiss-mitarbeiterin-wiss-mitarbeiter-w-m-d-im-institut-fuer-virusdiagnostik-1/",
+              info: null
+            }
+          ]
+        }
+      ],
+      boards: [
+        { name: "WOAH careers", url: "https://www.woah.org/en/vacancies", note: "refreshes regularly with internships, consultant roles and research-assistant/PhD-candidate positions in Paris" },
+        { name: "ILRI", url: "https://careers.ilri.org", note: "internships, fellowships and consultancies across livestock/One Health programs, Nairobi and other hubs" },
+        { name: "IUCN HRMS vacancies", url: "https://hrms.iucn.org/iresy/index.cfm?event=vac.showOpenList", note: "updates weekly across all IUCN offices worldwide" },
+        { name: "IRD recruitment", url: "https://emploi-recrutement.ird.fr", note: "French research institute — regular One Health, epidemiology and biodiversity roles" },
+        { name: "Friedrich-Loeffler-Institut vacancies", url: "https://www.fli.de/en/career/vacancies/", note: "German animal-health institute — PhD, postdoc and training posts (several currently open)" },
+        { name: "EFSA careers", url: "https://careers.efsa.europa.eu/", note: "guest programme, seconded experts and expert pools incl. animal health and welfare" },
+        { name: "ECDC vacancies & traineeships", url: "https://www.ecdc.europa.eu/en/about-us/work-us", note: "rolling EU public-health roles in Stockholm" },
+        { name: "PAHO Internship & Practicum Program", url: "https://www.paho.org/en/careers-paho/paho-internship-program-promoting-future-leaders-public-health", note: "Aug–Dec window currently open; small stipend, 8 weeks–6 months, various technical units including veterinary/public health" },
+        { name: "FAO Internship Programme", url: "https://www.fao.org/employment/young-talent-programme/internship-programme/en", note: "3–11 month internships via periodic calls for expression of interest (ages 21–30) — check the FAO career portal for the active call" },
+        { name: "WHO careers", url: "https://careers.who.int", note: "internship postings appear individually on a rolling basis" },
+        { name: "CDC ORISE / Zintellect", url: "https://zintellect.com", note: "epidemiology, environmental health and disaster-epi fellowships, refreshed regularly" },
+        { name: "PATH", url: "https://path.org/who-we-are/careers", note: "hires continuously across global health disciplines, entry to experienced level" },
+        { name: "One Health Trust internships", url: "https://onehealthtrust.org/academic-training/internship-program/", note: "rolling, remote-friendly research, communications and admin tracks" }
+      ]
+    },
+    {
+      id: "2026-09-28",
+      dateRangeLabel: "Sept 28–Oct 4, 2026",
+      sections: [
+        {
+          key: "scholarships",
+          label: "Scholarships & Fellowships",
+          opportunities: [
+            {
+              title: "CDC Environmental Health Technical Writing Fellow (ORISE)",
+              detail: "One-year ORISE fellowship in technical writing and risk communication for chemical emergencies and environmental health. Doctoral degree required (obtained within the past 5 years or by 31 Dec 2026), US citizens only",
+              institution: "CDC National Center for Environmental Health (Oak Ridge Institute for Science and Education)",
+              location: "Atlanta, GA, USA (US citizens only)",
+              deadline: "2026-10-09",
+              deadlineLabel: "Due Oct 9, 2026, 3:00 PM ET",
+              type: "fellowship",
+              apply: "https://www.zintellect.com/Opportunity/Details/CDC-2026-0036",
+              info: null
+            },
+            {
+              title: "President's PhD Scholarships 2026–27",
+              detail: "Fully funded (stipend + fees), open faculty-wide including Public Health and Medicine; candidate must already have a supervisor/project lined up",
+              institution: "Imperial College London",
+              location: "London, UK",
+              deadline: "2026-11-02",
+              deadlineLabel: "Due Nov 2, 2026, 23:59 UK",
+              type: "scholarship",
+              apply: "https://www.imperial.ac.uk/study/fees-and-funding/postgraduate-doctoral/grants-scholarships/presidents-phd/",
+              info: null
+            },
+            {
+              title: "EFSA Guest Programme Call 2026/2027",
+              detail: "Unpaid guest-researcher placements for scientists and PhD candidates from public institutions, food-safety-adjacent — could suit zoonotic-risk/animal-health researchers. Unusually long, rolling-style window",
+              institution: "European Food Safety Authority (EFSA)",
+              location: "Parma, Italy (remote placements possible)",
+              deadline: "2027-11-30",
+              type: "fellowship",
+              apply: "https://careers.efsa.europa.eu/jobs/efsa-guest-programme-call-2026-2027-443",
+              info: null
+            },
+            {
+              title: "Emerging Leaders Program, 2027 cohort",
+              detail: "3-month paid international placement (May–Aug 2027) in animal/dairy/disease-management work; covers airfare, visas, insurance and living allowance. Canadian citizens/permanent residents only, must be in or within 5 years of vet/grad school",
+              institution: "Veterinarians Without Borders (VWB) — VSF network member, Canada",
+              location: "Placements in Ghana & Kenya",
+              deadline: "2026-11-15",
+              type: "fellowship",
+              apply: "https://www.vwb.org/site/blog/2023/09/11/elp-application",
+              info: null
+            },
+            {
+              title: "ILRI Research Fellowship — Sustainable Animal and Aquatic Foods (SAAF) Program",
+              detail: "4-month fellowship (stipend + medical insurance) on water management/irrigation in pastoral livestock systems, with IWMI; requires master's in (agricultural) economics and STATA/NVivo skills",
+              institution: "International Livestock Research Institute (ILRI), with International Water Management Institute (IWMI)",
+              location: "Nairobi, Kenya",
+              deadline: null,
+              deadlineLabel: "Rolling / open until filled",
+              type: "fellowship",
+              apply: "https://ilri.simplicant.com/jobs/61928-ilri-research-fellowship-opportunity-international-water-management-institute-iwmi-sustainable-animal-and-aquatic-foods-saaf-science-program/detail",
+              info: null
+            }
+          ]
+        },
+        {
+          key: "phd",
+          label: "PhD Opportunities",
+          opportunities: [
+            {
+              title: "PhD in Marine Disease Ecology — Black Spot Syndrome in Caribbean Reef Fish",
+              detail: "How a parasitic disease affecting herbivorous reef fish shapes coral-reef ecological communities and ecosystem function; fieldwork, lab experiments, museum research and modeling. Federally funded, Fall 2027 entry",
+              institution: "University of Colorado Boulder — Johnson Laboratory, Dept. of Ecology & Evolutionary Biology",
+              location: "Boulder, CO, USA (fieldwork in the Caribbean)",
+              deadline: "2026-10-04",
+              deadlineLabel: "Full consideration for applications by Oct 4, 2026",
+              type: "phd",
+              apply: null,
+              info: "https://www.colorado.edu/lab/johnson-laboratory/2026/07/21/join-us-accepting-applications-marine-ecology-phd-students-fall-2027"
+            },
+            {
+              title: "Research Assistant / PhD Candidate — Assessing the Impact of WOAH Standards on Animal Health Outcomes",
+              detail: "3-year funded doctoral post using quantitative methods (R/Python/Stata) to assess how uptake of WOAH standards affects real-world animal health outcomes; €2,447/month gross. Closing very soon",
+              institution: "WOAH (World Organisation for Animal Health), Data Integration & Analytics Dept.",
+              location: "Paris, France",
+              deadline: "2026-09-30",
+              type: "phd",
+              apply: "https://www.woah.org/en/job-offer/research-assistant-phd-candidate-assessing-the-impact-of-the-uptake-of-woah-standards-on-animal-health-outcomes-data-integration-analytics-department-woah-hq/",
+              info: null
+            },
+            {
+              title: "PhD — AI for Animal & Herd-Level Monitoring and Decision Support",
+              detail: "3-year fully funded (~27,800 DKK/month + pension) developing ML/AI methods (state-space models, transformers, CNNs, LLMs) on sensor/production/video data for herd- and animal-level health and welfare monitoring; start Jan 2027",
+              institution: "University of Copenhagen, Dept. of Veterinary and Animal Sciences (Assoc. Prof. Dan Børge Jensen)",
+              location: "Copenhagen, Denmark",
+              deadline: "2026-10-07",
+              deadlineLabel: "Due Oct 7, 2026, 23:59 CEST",
+              type: "phd",
+              apply: "https://employment.ku.dk/all-vacancies?show=169612",
+              info: null
+            }
+          ]
+        },
+        {
+          key: "internships",
+          label: "Internships & Entry–Mid Roles",
+          opportunities: [
+            {
+              title: "ECDC Traineeship Programme 2027",
+              detail: "Paid (€2,205.72/mo) 5–9 month traineeships for recent grads; the Food-, Water-, Vector-borne and Zoonotic Diseases and AMR & Healthcare-Associated Infections tracks are the strongest One Health fits (Respiratory Viruses and Digital Solutions tracks also exist, 12 spots total)",
+              institution: "European Centre for Disease Prevention and Control (ECDC)",
+              location: "Stockholm, Sweden",
+              deadline: "2026-10-05",
+              deadlineLabel: "Due Oct 5, 2026, 12:00 Stockholm time",
+              type: "internship",
+              apply: "https://erecruitment.ecdc.europa.eu/en",
+              info: null
+            },
+            {
+              title: "Scientific Officer – Medical Entomology",
+              detail: "3-year contract-agent post coordinating an EU expert panel on invasive Aedes mosquito control — strong climate-and-health / vector-borne disease fit (3+ yrs experience required)",
+              institution: "European Centre for Disease Prevention and Control (ECDC)",
+              location: "Stockholm, Sweden",
+              deadline: "2026-10-15",
+              type: "job",
+              apply: "https://www.ecdc.europa.eu/en/about-us/work-us/vacancies/scientific-officer-medical-entomology",
+              info: null
+            },
+            {
+              title: "Estonian National Graduate Trainee — AI/Machine Learning Mapping of Forestry Biodiversity",
+              detail: "1-year paid Earth-observation/ML traineeship mapping forest biodiversity via satellite data. Estonian nationals only",
+              institution: "European Space Agency (ESA)",
+              location: "Frascati, Italy",
+              deadline: "2026-10-13",
+              deadlineLabel: "Due Oct 13, 2026, 23:59 CET",
+              type: "internship",
+              apply: "https://jobs.esa.int/job/Frascati-Estonian-National-Graduate-Trainee-in-AIMachine-Learning-Mapping-of-Forestry-Biodiversity/1437025433/",
+              info: null
+            },
+            {
+              title: "Data and Platform Manager",
+              detail: "Manages biodiversity data/platform systems for IUCN's Nepal programme",
+              institution: "IUCN",
+              location: "Kathmandu, Nepal",
+              deadline: "2026-10-12",
+              type: "job",
+              apply: "https://hrms.iucn.org/iresy/index.cfm?event=vac.showOpenList",
+              info: null
+            },
+            {
+              title: "Central Asia Nature-based Solutions Project Officer",
+              detail: "Delivers NbS conservation projects across Central Asia",
+              institution: "IUCN",
+              location: "Tashkent, Uzbekistan",
+              deadline: "2026-10-15",
+              type: "job",
+              apply: "https://hrms.iucn.org/iresy/index.cfm?event=vac.showOpenList",
+              info: null
+            },
+            {
+              title: "Mandatory Internship – Research & Analysis Support, Climate Change",
+              detail: "Supports climate-change research/analysis for IUCN's European office. Closing very soon",
+              institution: "IUCN, European Regional Office",
+              location: "Bonn, Germany",
+              deadline: "2026-09-30",
+              type: "internship",
+              apply: "https://hrms.iucn.org/iresy/index.cfm?event=vac.showOpenList",
+              info: null
+            },
+            {
+              title: "Mandatory Internship – Communication Intern, Climate Change",
+              detail: "Communications support for IUCN's climate-change programme",
+              institution: "IUCN, European Regional Office",
+              location: "Bonn, Germany",
+              deadline: "2026-10-04",
+              type: "internship",
+              apply: "https://hrms.iucn.org/iresy/index.cfm?event=vac.showOpenList",
+              info: null
+            },
+            {
+              title: "Chercheur en Anthropologie – One Health",
+              detail: "24-month researcher contract. Anthropological research on epidemic emergence and human–animal–environment relations in Central Africa",
+              institution: "IRD / TransVIHMI (IRD–INSERM–Univ. Montpellier)",
+              location: "Montpellier, France (fieldwork in DR Congo & Cameroon)",
+              deadline: "2026-10-25",
+              type: "job",
+              apply: "https://emploi-recrutement.ird.fr/offre-de-emploi/emploi-chercheur-en-anthropologie-one-health-f-h-_830.aspx",
+              info: null
+            },
+            {
+              title: "Chercheur Épidémiologiste – Élimination de l'onchocercose / Pharmacovigilance",
+              detail: "36-month contract. Clinical-trial/pharmacovigilance programme on onchocerciasis elimination, tropical fieldwork required",
+              institution: "IRD / TransVIHMI",
+              location: "Montpellier, France",
+              deadline: "2026-10-09",
+              type: "job",
+              apply: "https://emploi-recrutement.ird.fr/offre-de-emploi/emploi-chercheur-epidemiologiste-elimination-de-l-onchocercose-pharmacovigilance-f-h-_826.aspx",
+              info: null
+            },
+            {
+              title: "Post-doctorant·e – MEDDI project",
+              detail: "31-month contract. Marine biodiversity/conservation postdoc on mesophotic coral reef communities and refuge-zone conservation under climate change",
+              institution: "IRD / UMR ENTROPIE (IRD–Ifremer–Univ. Réunion–Univ. Nouvelle-Calédonie)",
+              location: "Saint-Denis, Réunion, France",
+              deadline: "2026-10-09",
+              type: "job",
+              apply: "https://emploi-recrutement.ird.fr/offre-de-emploi/emploi-post-doctorant-es-h-f_821.aspx",
+              info: null
+            },
+            {
+              title: "Gestionnaire de projet – Trypa-No!",
+              detail: "24-month project manager role, Gates Foundation–funded. Coordinates a 7-country West/Central African consortium fighting sleeping sickness (human African trypanosomiasis)",
+              institution: "IRD / TransVIHMI",
+              location: "Montpellier, France",
+              deadline: "2026-10-25",
+              type: "job",
+              apply: "https://emploi-recrutement.ird.fr/offre-de-emploi/emploi-gestionnaire-de-projet-trypa-no-h-f_829.aspx",
+              info: null
+            },
+            {
+              title: "Scientific Employee (postdoc) – Institute for Virus Diagnostics",
+              detail: "In-vitro/in-vivo infection studies and pathogen-detection methods for an epidemic-preparedness alliance project; requires PhD in biology, veterinary medicine or related field",
+              institution: "Friedrich-Loeffler-Institut (FLI)",
+              location: "Greifswald–Insel Riems, Germany",
+              deadline: "2026-10-02",
+              type: "job",
+              apply: "https://www.fli.de/en/career/vacancies/vacancy/wiss-mitarbeiterin-wiss-mitarbeiter-w-m-d-im-institut-fuer-virusdiagnostik/",
+              info: null
+            },
+            {
+              title: "Postdoctoral Researcher – Food Web Ecology",
+              detail: "Freshwater biodiversity/food-web ecology research on how biodiversity and trophic structure relate to stream ecosystem functioning",
+              institution: "UFZ (Helmholtz Centre for Environmental Research)",
+              location: "Magdeburg, Germany",
+              deadline: "2026-10-25",
+              type: "job",
+              apply: null,
+              info: "https://www.ufz.de/index.php?en=34276"
+            },
+            {
+              title: "Estágio FIOCRUZ 2026",
+              detail: "122 non-mandatory internship openings (119 undergraduate, 3 technical/secondary) across FIOCRUZ's research and public-health units, with affirmative-action reserved slots",
+              institution: "Fundação Oswaldo Cruz (FIOCRUZ)",
+              location: "Multiple units across Brazil",
+              deadline: "2026-10-16",
+              type: "internship",
+              apply: "https://fiocruz.br/noticia/2026/09/inscricoes-abertas-para-estagio-na-fiocruz",
+              info: null
+            },
+            {
+              title: "AVMA Government Relations Student Externship Program",
+              detail: "4-week Capitol Hill programme on veterinary public-policy issues; $1,200 stipend, multiple 2027 sessions. SAVMA members, 2+ years of vet school completed, US citizens only",
+              institution: "American Veterinary Medical Association (AVMA)",
+              location: "Washington, DC, USA",
+              deadline: "2026-10-16",
+              type: "internship",
+              apply: null,
+              info: "https://www.avma.org/advocacy/get-involved/avma-government-relations-student-externship-program"
+            }
+          ]
+        }
+      ],
+      boards: [
+        { name: "WOAH careers", url: "https://www.woah.org/en/vacancies", note: "refreshes regularly with internships, consultant roles and research-assistant/PhD-candidate positions in Paris" },
+        { name: "ILRI", url: "https://careers.ilri.org", note: "internships and consultancies across livestock/One Health programs, Nairobi and other hubs" },
+        { name: "International Vaccine Institute", url: "https://ivi.int/careers", note: "internship cycle typically reopens March–April for May–September placements in Seoul" },
+        { name: "PATH", url: "https://path.org/who-we-are/careers", note: "hires continuously across global health disciplines, entry to experienced level" },
+        { name: "CDC ORISE / Zintellect", url: "https://zintellect.com", note: "refreshed regularly with epidemiology, environmental health and disaster-epi fellowships — worth a weekly check" },
+        { name: "WHO careers", url: "https://careers.who.int", note: "internship postings appear individually on a rolling basis via the Stellis system" },
+        { name: "Gavi internship programme", url: "https://www.gavi.org/work-with-us/internship-programme", note: "interns recruited year-round per team need across Geneva and Washington DC" },
+        { name: "The Marine Mammal Center training programs", url: "https://www.marinemammalcenter.org/education/veterinary-professionals", note: "rolling pathology resident rotation and periodic pathology/vet-tech apprenticeships" },
+        { name: "FAO Internship Programme", url: "https://www.fao.org/employment/young-talent-programme/internship-programme/en", note: "rolling UN internship across FAO's Rome HQ and regional offices; current call closes 31 Dec 2026, ~US$700/month stipend. FAO also posts individual entry-level Young Professional Officer (P-1, age ≤32) roles on a rolling basis" },
+        { name: "PAHO Internship & Practicum Program", url: "https://www.paho.org/en/careers-paho/paho-internship-program-promoting-future-leaders-public-health", note: "new addition this week — two annual windows (Feb–Jun and Aug–Dec, currently open now); unpaid, 8 weeks–6 months, various technical units including veterinary/public health" },
+        { name: "UNEP-WCMC vacancies", url: "https://vacancies.wcmc.org.uk/", note: "new addition this week — World Conservation Monitoring Centre; check directly, deadlines not always easy to verify remotely" },
+        { name: "IUCN HRMS vacancies", url: "https://hrms.iucn.org/iresy/index.cfm?event=vac.showOpenList", note: "new addition this week — updates weekly across all IUCN offices worldwide; the single best hit rate of any source this week" },
+        { name: "ESA National Graduate Trainee programme", url: "https://jobs.esa.int", note: "new addition this week — recurring scheme with Earth-observation/climate-adjacent placements opening periodically; seats are nationality-restricted per participating country" }
+      ]
+    },
+    {
+      id: "2026-09-21",
+      dateRangeLabel: "Sept 21–27, 2026",
+      sections: [
+        {
+          key: "scholarships",
+          label: "Scholarships & Fellowships",
+          opportunities: [
+            {
+              title: "Bloomberg Fellows Program 2026–2027",
+              detail: "Fully funded MPH or DrPH for public health professionals already employed by a US organization tackling addiction/overdose, adolescent health, environmental health, food systems, or violence prevention. Requires a US-based sponsoring organization",
+              institution: "Johns Hopkins Bloomberg School of Public Health (Bloomberg American Health Initiative)",
+              location: "Baltimore, MD, USA (US-based sponsoring organization required)",
+              deadline: "2026-12-01",
+              type: "fellowship",
+              apply: "https://bloombergamericanhealthinitiative.submittable.com/submit/d7a0c228-4d8a-4c4f-80d7-56afd7a98704/bloomberg-fellows-application-2026-2027",
+              info: null
+            },
+            {
+              title: "Chulalongkorn University Scholarships 2027",
+              detail: "Fully funded Master's or PhD; fields include Public Health Sciences, Veterinary Science and Technology, Microbiology and Microbial Technology, and Food Science and Technology",
+              institution: "Chulalongkorn University",
+              location: "Bangkok, Thailand (open to ASEAN and non-ASEAN international students)",
+              deadline: "2026-10-10",
+              type: "scholarship",
+              apply: "https://www.register.gradchula.com/",
+              info: null
+            }
+          ]
+        },
+        {
+          key: "phd",
+          label: "PhD Opportunities",
+          opportunities: [
+            {
+              title: "PhD in Computational Conservation",
+              detail: "Integrating weather/climate patterns into conservation biogeography and climate-vulnerability modeling; supervisor Dr. Adam B. Smith. 4 years, funded via university/Garden fellowships",
+              institution: "Missouri Botanical Garden / Washington University in St. Louis, Dept. of Ecology & Evolutionary Biology",
+              location: "St. Louis, MO, USA",
+              deadline: "2026-10-25",
+              deadlineLabel: "Lab pre-application due Oct 25 — WUSTL formal application due Dec 1, 2026",
+              type: "phd",
+              apply: "https://forms.gle/ZD6U7nsBNSB7Gscf7",
+              info: null
+            }
+          ]
+        },
+        {
+          key: "internships",
+          label: "Internships & Entry–Mid Roles",
+          opportunities: [
+            {
+              title: "Wildlife Internship Program",
+              detail: "2 paid positions; clinical service, surgery, diagnostics and case management for wildlife patients at an affiliated zoo facility serving New England. For D.V.M./V.M.D. graduates of AAVMC-accredited schools",
+              institution: "Tufts Cummings School of Veterinary Medicine — Tufts Wildlife Clinic",
+              location: "North Grafton, MA, USA",
+              deadline: "2026-10-30",
+              deadlineLabel: "Due Oct 30, 2026 (for the 2027–2028 program year)",
+              type: "internship",
+              apply: "https://tufts.qualtrics.com/jfe/form/SV_a4uxo0HT2CV0HUq",
+              info: null
+            },
+            {
+              title: "Marine Mammal Medicine & Pathology Veterinary Internship",
+              detail: "Paid, 1-year, includes housing; hands-on clinical and pathology work with marine mammal patients. DVM required, 1+ year clinical experience strongly preferred",
+              institution: "The Marine Mammal Center",
+              location: "Sausalito, CA, USA",
+              deadline: "2026-12-01",
+              deadlineLabel: "Due Dec 2026 (onsite start Aug 2027)",
+              type: "internship",
+              apply: "https://recruiting.paylocity.com/recruiting/jobs/Details/4469686/Marine-Mammal-Center/Marine-Mammal-Medicine-and-Pathology-Veterinary-Internship",
+              info: null
+            },
+            {
+              title: "Clinical Veterinary Student Externship",
+              detail: "3–4 week rotation in marine mammal medicine & pathology; for final/clinical-year DVM students; international students welcome",
+              institution: "The Marine Mammal Center",
+              location: "Sausalito, CA, USA",
+              deadline: "2026-12-01",
+              deadlineLabel: "Due Dec 2026 (rotations March–Sept 2028)",
+              type: "internship",
+              apply: "https://recruiting.paylocity.com/recruiting/jobs/Details/4469227/Marine-Mammal-Center/Clinical-Veterinary-Student-Externship-Rotation-in-Marine-Mammal-Medicine-and-Pathology",
+              info: null
+            }
+          ]
+        }
+      ],
+      boards: [
+        { name: "WOAH careers", url: "https://www.woah.org/en/vacancies", note: "refreshes regularly with internships, consultant roles and research-assistant/PhD-candidate positions in Paris" },
+        { name: "ILRI", url: "https://careers.ilri.org", note: "internships and consultancies across livestock/One Health programs, Nairobi and other hubs" },
+        { name: "International Vaccine Institute", url: "https://ivi.int/careers", note: "the 2026 internship cycle has concluded; typically reopens March–April for May–September placements in Seoul" },
+        { name: "PATH", url: "https://path.org/who-we-are/careers", note: "hires continuously across global health disciplines, entry to experienced level" },
+        { name: "CDC ORISE / Zintellect", url: "https://zintellect.com", note: "refreshed regularly with epidemiology, environmental health and disaster-epi fellowships — worth a weekly check" },
+        { name: "WHO careers", url: "https://careers.who.int", note: "internship postings appear individually on a rolling basis" },
+        { name: "Gavi internship programme", url: "https://www.gavi.org/work-with-us/internship-programme", note: "interns recruited year-round per team need, Geneva or Washington DC; check the vacancies page directly since there's no fixed call" },
+        { name: "The Marine Mammal Center training programs", url: "https://www.marinemammalcenter.org/education/veterinary-professionals", note: "new addition this week — also runs a rolling pathology resident rotation and periodic pathology/vet-tech apprenticeships beyond the two deadlined programs listed above" }
+      ]
+    },
+    {
+      id: "2026-09-14",
+      dateRangeLabel: "Sept 14–20, 2026",
+      sections: [
+        {
+          key: "scholarships",
+          label: "Scholarships & Fellowships",
+          opportunities: [
+            {
+              title: "FOR-GHP Fellowship 2026",
+              detail: "Fellowship in Outbreak Readiness for Global Health Protection — 1.5-year outbreak-preparedness/response fellowship",
+              institution: "German Federal Ministry of Health (Global Health Protection Programme) — iACE Global Health/BNITM, AFENET, Robert Koch Institute, Swiss TPH",
+              location: "Sub-Saharan Africa (citizens only)",
+              deadline: "2026-10-21",
+              type: "fellowship",
+              apply: "https://go4ghp.de/for-ghp",
+              info: null
+            },
+            {
+              title: "Global Health Emerging Scholars (GHES) Fellowship 2027–28",
+              detail: "12-month mentored global health research training; LMIC postdoctoral scholars (PhD/MD/DVM/DrPH) welcome",
+              institution: "NIH Fogarty International Center — Yale/Stanford/UC Berkeley/U Arizona consortium",
+              location: "15 LMICs across Africa, Latin America & Caribbean, South/SE Asia, Middle East, E. Europe, Oceania",
+              deadline: "2026-10-01",
+              type: "fellowship",
+              apply: null,
+              info: "https://medicine.yale.edu/yigh/ghes/"
+            },
+            {
+              title: "David H. Smith Conservation Research Fellowship — “Smith Fellows” 2027",
+              detail: "2-year postdoctoral fellowship, salary + $45,000 research/travel budget. Research must address US (or territory) conservation, hosted at a US institution",
+              institution: "Society for Conservation Biology / Cedar Tree Foundation",
+              location: "US-hosted (international PhD holders eligible)",
+              deadline: "2026-09-30",
+              type: "fellowship",
+              apply: "https://apply.smithfellows.org",
+              info: null
+            },
+            {
+              title: "Whitley Award 2027",
+              detail: "£50,000 unrestricted funding + mentoring/media support for mid-career conservationists scaling proven grassroots projects",
+              institution: "Whitley Fund for Nature",
+              location: "Global (applicant must be a national of the country where the project operates)",
+              deadline: "2026-10-30",
+              type: "fellowship",
+              apply: "https://whitleyaward.org/apply-for-conservation-funding/apply-for-a-whitley-award/",
+              info: null
+            },
+            {
+              title: "Emerging Leaders in Biosecurity Fellowship (ELBI), Class of 2027",
+              detail: "Year-long, part-time, cohort-based biosecurity leadership fellowship for early–mid career professionals",
+              institution: "Johns Hopkins Center for Health Security",
+              location: "International cohort — hybrid, in-person meetings in US (x2) and Switzerland",
+              deadline: "2026-09-30",
+              type: "fellowship",
+              apply: "https://centerforhealthsecurity.submittable.com/submit/351064/2027-elbi-fellowship-application",
+              info: null
+            },
+            {
+              title: "Atlantic Fellows for Equity in Brain Health 2027–28 — UCSF track",
+              detail: "Global leadership/training fellowship for clinical, public health, science and policy professionals — broader global-health leadership fit rather than strictly animal/environmental health",
+              institution: "Global Brain Health Institute (UCSF & Trinity College Dublin)",
+              location: "Global, UCSF hybrid track",
+              deadline: "2026-11-02",
+              type: "fellowship",
+              apply: "https://www.gbhi.org/apply",
+              info: null
+            }
+          ]
+        },
+        {
+          key: "phd",
+          label: "PhD Opportunities",
+          opportunities: [
+            {
+              title: "Multiple funded PhD projects — Veterinary Population Medicine",
+              detail: "Foreign animal disease epidemiology (Dr. Andres Perez), respiratory disease ecology in calves (Dr. Noelle Noyes), chronic wasting disease ecology (Dr. Tiffany Wolf), AMR/pathogen genomics surveillance (Dr. Beth Thielen), viral ecology in food-animal systems (Dr. Kim VanderWaal)",
+              institution: "University of Minnesota, Dept. of Veterinary Population Medicine",
+              location: "St. Paul, MN, USA",
+              deadline: null,
+              deadlineLabel: "Rolling",
+              type: "phd",
+              apply: null,
+              info: "https://vetmed.umn.edu/comparative-and-molecular-biosciences/projects-seeking-applicants"
+            },
+            {
+              title: "Disease Ecology, Conservation Biology & Epidemiology — Madagascar",
+              detail: "Field, molecular (PCR/NGS) and dynamical-modeling work on wildlife disease; supervisor Dr. Cara Brook",
+              institution: "UC Berkeley, Dept. of Integrative Biology",
+              location: "Berkeley, CA, USA (with Madagascar fieldwork)",
+              deadline: "2026-10-16",
+              type: "phd",
+              apply: null,
+              info: "https://brooklab.org/join"
+            },
+            {
+              title: "Disease & Behavioral Ecology of Cavity-Nesting Wild Birds",
+              detail: "Climate/urban disease ecology in wild birds; supervisor Dr. Erin Sauer; funded position, expressions of interest reviewed mid-October",
+              institution: "Rutgers University, Dept. of Ecology, Evolution & Natural Resources",
+              location: "New Jersey, USA",
+              deadline: "2026-12-01",
+              type: "phd",
+              apply: null,
+              info: "https://www.sauerlab.com/join-us.html"
+            },
+            {
+              title: "Integrative Conservation (ICON) PhD Program",
+              detail: "Interdisciplinary conservation PhD spanning anthropology, ecology, forestry, geography & marine sciences; funded via research/teaching assistantships",
+              institution: "University of Georgia",
+              location: "Athens, GA, USA",
+              deadline: "2026-12-01",
+              type: "phd",
+              apply: null,
+              info: "https://cicr.uga.edu/icon-phd-program/"
+            },
+            {
+              title: "Doctoral Student — Real-World Effectiveness Research",
+              detail: "EHR-based research on medication effectiveness, health services & population health; supervisor Dr. Pascal Geldsetzer",
+              institution: "Heidelberg Institute of Global Health, Heidelberg University",
+              location: "Heidelberg, Germany",
+              deadline: null,
+              deadlineLabel: "Rolling (hiring on an ongoing basis)",
+              type: "phd",
+              apply: null,
+              info: "https://community.globalhealthhub.de/index.php/en/marketplace/29-doctoral-student-for-the-heidelberg-institute-of-global-health"
+            }
+          ]
+        },
+        {
+          key: "internships",
+          label: "Internships & Entry–Mid Roles",
+          opportunities: [
+            {
+              title: "Internship – Advocacy, Cabinet",
+              detail: "Supports WOAH's advocacy/communications work at HQ; open to Master's students in international relations, public policy, global health or communication. Closing very soon",
+              institution: "WOAH (World Organisation for Animal Health)",
+              location: "Paris, France (on-site)",
+              deadline: "2026-09-16",
+              type: "internship",
+              apply: "https://www.woah.org/en/job-offer/internship-advocacy-cabinet-woah-hq-paris-france/",
+              info: null
+            },
+            {
+              title: "Policy and Communications Assistant (Internship)",
+              detail: "Policy/communications support on wildlife trade issues and EU engagement",
+              institution: "TRAFFIC (IUCN/WWF wildlife trade monitoring network), Europe Office",
+              location: "Brussels, Belgium",
+              deadline: "2026-09-21",
+              type: "internship",
+              apply: null,
+              info: "https://hrms.iucn.org/vacancy/6896"
+            },
+            {
+              title: "Internship – Gender Data Analysis and Mainstreaming in WOAH Operations",
+              detail: "Analyzing gender/equity/disability/inclusion (GEDSI) datasets across WOAH's animal-health operations; R/Python skills needed",
+              institution: "WOAH (World Organisation for Animal Health)",
+              location: "Paris, France (on-site)",
+              deadline: "2026-09-28",
+              type: "internship",
+              apply: "https://www.woah.org/en/job-offer/internship-gender-data-analysis-and-mainstreaming-in-woah-operations-data-integration-and-analytics-department/",
+              info: null
+            },
+            {
+              title: "Post-Doctoral Scientist — Agricultural Economist",
+              detail: "Research under ILRI's Livestock, Climate and Environment Program; postdoc level. Verify exact posting on ILRI's own careers page — the specific direct link could not be independently re-verified",
+              institution: "International Livestock Research Institute (ILRI)",
+              location: "Kenya/Ethiopia (ILRI HQ regions — verify on posting)",
+              deadline: "2026-10-04",
+              type: "job",
+              apply: null,
+              info: "https://careers.ilri.org"
+            }
+          ]
+        }
+      ],
+      boards: [
+        { name: "WOAH careers", url: "https://www.woah.org/en/vacancies", note: "new addition this week — refreshed with two internships and a consultant post this cycle alone, worth a regular check" },
+        { name: "ILRI", url: "https://careers.ilri.org", note: "internships and consultancies across livestock/One Health programs, Nairobi and other hubs" },
+        { name: "International Vaccine Institute", url: "https://ivi.int/careers", note: "ongoing internship program plus rotating entry/mid roles, Seoul" },
+        { name: "PATH", url: "https://path.org/careers", note: "hires continuously across global health disciplines, entry to experienced level" },
+        { name: "CDC ORISE / Zintellect", url: "https://zintellect.com", note: "refreshed regularly with epidemiology, environmental health and disaster-epi fellowships — worth a weekly check" },
+        { name: "WHO careers", url: "https://careers.who.int", note: "internship postings appear individually on a rolling basis" }
+      ]
+    },
+    {
+      id: "2026-09-10",
+      dateRangeLabel: "Sept 7–13, 2026",
+      sections: [
+        {
+          key: "scholarships",
+          label: "Scholarships & Fellowships",
+          opportunities: [
+            {
+              title: "SEAOHUN 2026 ASEAN One Health Climate Fellowship",
+              detail: "Early–mid career, ~4 months, full support",
+              institution: "Southeast Asia One Health University Network (SEAOHUN)",
+              location: "Southeast Asia (Cambodia, Indonesia, Laos, Malaysia, Philippines, Thailand, Vietnam)",
+              deadline: "2026-09-20",
+              type: "fellowship",
+              apply: "https://www.seaohun.org/fellowship",
+              info: null
+            },
+            {
+              title: "AWARD Leadership Program 2026/2027",
+              detail: "For women in agricultural sciences, virtual delivery",
+              institution: "African Women in Agricultural Research and Development (AWARD)",
+              location: "Sub-Saharan Africa (Benin, Burkina Faso, Côte d'Ivoire, Ethiopia, Ghana, Kenya, Malawi, Nigeria, Senegal, Tanzania, Zambia)",
+              deadline: "2026-09-20",
+              type: "fellowship",
+              apply: "https://awardfellowships.org/emerging-women-in-science/",
+              info: null
+            },
+            {
+              title: "Okavango River Basin Research RFP",
+              detail: "Field research / conservation funding",
+              institution: "National Geographic Society",
+              location: "Global (18+, strong local-context requirement)",
+              deadline: "2026-09-23",
+              type: "fellowship",
+              apply: "https://funding.nationalgeographic.org/",
+              info: null
+            },
+            {
+              title: "HBNU Fogarty Global Health Fellowship",
+              detail: "12-month mentored research fellowship in an LMIC; open to pre/postdoctoral students & early-career LMIC researchers",
+              institution: "NIH Fogarty International Center (4 US universities + 21 LMIC partners)",
+              location: "Placements in LMICs",
+              deadline: "2026-09-25",
+              type: "fellowship",
+              apply: "https://hsph.harvard.edu/fellowship-special-program/hbnu-fogarty/",
+              info: null
+            },
+            {
+              title: "Doctor of Public Health (DrPH) Scholarship 2027–2028",
+              detail: "7+ fully funded spots, for African public health leaders",
+              institution: "University of Toronto — Dalla Lana School of Public Health (Mastercard Foundation / Africa Health Collaborative)",
+              location: "Toronto, Canada (Sub-Saharan African citizens/residents only)",
+              deadline: "2026-10-01",
+              type: "scholarship",
+              apply: "https://africahealthcollaborative.org/2026/08/20/2027-2028-doctor-of-public-health-scholarships-open/",
+              info: null
+            },
+            {
+              title: "“The Human Thread” RFP",
+              detail: "Research/storytelling funding — check current scope for health/conservation fit",
+              institution: "National Geographic Society",
+              location: "Global (18+)",
+              deadline: null,
+              deadlineLabel: "Oct 1 – Dec 1, 2026",
+              type: "fellowship",
+              apply: "https://funding.nationalgeographic.org/",
+              info: null
+            },
+            {
+              title: "Chevening Scholarship 2027/2028",
+              detail: "Fully funded master's, any field incl. public/global health, One Health",
+              institution: "UK Government (FCDO)",
+              location: "UK study, open to applicants worldwide",
+              deadline: "2026-10-06",
+              type: "scholarship",
+              apply: "https://www.chevening.org/apply/",
+              info: null
+            },
+            {
+              title: "Gates Cambridge Scholarship — 2027 intake",
+              detail: "Fully funded postgrad study, incl. MPhil/PhD in public health, epidemiology, veterinary medicine",
+              institution: "University of Cambridge / Gates Foundation",
+              location: "Cambridge, UK — non-UK applicants",
+              deadline: null,
+              deadlineLabel: "Oct 14 (US, US-resident) · Dec 8 / Jan 6 (all other, course-dependent)",
+              type: "scholarship",
+              apply: "https://www.gatescambridge.org/apply/",
+              info: null
+            },
+            {
+              title: "Commonwealth Master's Scholarships 2027/28",
+              detail: "Agency-nominated, full funding, financial-need based",
+              institution: "Commonwealth Scholarship Commission (UK)",
+              location: "UK study, open to 40+ eligible Commonwealth countries",
+              deadline: "2026-10-20",
+              type: "scholarship",
+              apply: null,
+              info: "https://cscuk.fcdo.gov.uk/scholarships/commonwealth-masters-scholarships/"
+            },
+            {
+              title: "Rufford Small Grants for Nature Conservation",
+              detail: "For MSc holders/grads within 3 years, field conservation projects",
+              institution: "The Rufford Foundation (UK)",
+              location: "Global (eligible-country list; not for undergrads)",
+              deadline: null,
+              deadlineLabel: "Rolling (1 application per 12 months)",
+              type: "fellowship",
+              apply: "https://apply.ruffordsmallgrants.org/",
+              info: null
+            },
+            {
+              title: "DAAD EPOS Scholarships",
+              detail: "Master's study in Germany, development-relevant fields incl. public/veterinary public health",
+              institution: "German Academic Exchange Service (DAAD)",
+              location: "Germany, for students from developing countries",
+              deadline: null,
+              deadlineLabel: "Varies by programme (~Aug–Oct 2026) — check programme page",
+              type: "scholarship",
+              apply: null,
+              info: "https://www.daad.de/en/study-and-research-in-germany/scholarships/"
+            },
+            {
+              title: "Fulbright Foreign Student Program 2027–2028",
+              detail: "Fully funded master's/professional study, any field incl. public health, epidemiology, vet science",
+              institution: "US Department of State (via national Fulbright Commissions)",
+              location: "Global, country-specific eligibility & deadlines",
+              deadline: null,
+              deadlineLabel: "Varies by country (~Sept–Dec 2026) — check your Fulbright Commission",
+              type: "scholarship",
+              apply: null,
+              info: "https://us.fulbrightonline.org/applicants"
+            }
+          ]
+        },
+        {
+          key: "phd",
+          label: "PhD Opportunities",
+          opportunities: [
+            {
+              title: "K. Lisa Yang Wildlife Health Fellows Program",
+              detail: "DVM-to-PhD track, wildlife health/conservation medicine, up to 5 yrs funded. Cycle opens Sept 15",
+              institution: "Cornell University College of Veterinary Medicine",
+              location: "Ithaca, NY, USA",
+              deadline: "2026-12-01",
+              type: "phd",
+              apply: null,
+              info: "https://wildlife.cornell.edu/resources/k-lisa-yang-wildlife-health-fellows-program"
+            },
+            {
+              title: "PhD in Epidemiology — One Health emphasis available",
+              detail: "Fall 2027 entry",
+              institution: "University of Washington, Dept. of Epidemiology",
+              location: "Seattle, WA, USA",
+              deadline: "2026-12-01",
+              type: "phd",
+              apply: "https://epi.washington.edu/admissions/apply/",
+              info: null
+            },
+            {
+              title: "PhD in Epidemiology (One Health Institute–affiliated)",
+              detail: "Priority date for funding — general deadline 15 Feb 2027",
+              institution: "UC Davis, Graduate Group in Epidemiology",
+              location: "Davis, CA, USA",
+              deadline: "2026-12-15",
+              type: "phd",
+              apply: "https://www.epi.ucdavis.edu/admissions",
+              info: null
+            },
+            {
+              title: "PhD in Population Medicine – Epidemiology",
+              detail: "Infectious-disease epidemiology risk factors; supervisor Dr. Michele Guerin",
+              institution: "University of Guelph, Ontario Veterinary College",
+              location: "Guelph, Canada",
+              deadline: null,
+              deadlineLabel: "Rolling",
+              type: "phd",
+              apply: null,
+              info: "https://www.uoguelph.ca/ovc/current-opportunities/phd_population_medicine-epidemiology"
+            },
+            {
+              title: "PhD Position — One Health Approach to Antimicrobial Resistance",
+              detail: "Environmental AMR; supervisor Dr. Xu Li",
+              institution: "University of Nebraska–Lincoln, Civil & Environmental Engineering",
+              location: "Lincoln, NE, USA",
+              deadline: null,
+              deadlineLabel: "Rolling, reviewed until filled",
+              type: "phd",
+              apply: null,
+              info: "https://engineering.unl.edu/cee/prospective-students/"
+            }
+          ]
+        },
+        {
+          key: "internships",
+          label: "Internships & Entry–Mid Roles",
+          opportunities: [
+            {
+              title: "Young Professionals Program",
+              detail: "2-yr mid-career track incl. Health, Nutrition & Population",
+              institution: "World Bank Group",
+              location: "Washington, DC (global applicant pool)",
+              deadline: "2026-09-30",
+              type: "job",
+              apply: "https://www.worldbank.org/ext/en/careers/talent-programs/young-professionals-program",
+              info: null
+            },
+            {
+              title: "Research Assistant / Doctoral Candidate — Data Integration & Analytics",
+              detail: "3-yr fixed term",
+              institution: "World Organisation for Animal Health (WOAH)",
+              location: "Paris, France",
+              deadline: "2026-09-30",
+              type: "job",
+              apply: "https://www.woah.org/en/offer-type/open-position/",
+              info: null
+            },
+            {
+              title: "Biodiversity Project Administrator",
+              detail: null,
+              institution: "IUCN, EU Representative Office",
+              location: "Brussels, Belgium",
+              deadline: "2026-09-20",
+              type: "job",
+              apply: "https://hrms.iucn.org/vacancy/7701",
+              info: null
+            },
+            {
+              title: "EPIET / EUPHEM Fellowship Programme — Cohort 2027",
+              detail: "2-yr paid fellowship; EU/EEA nationals only, master's + 2-3 yrs exp, B2 in two EU/EEA languages",
+              institution: "European Centre for Disease Prevention and Control (ECDC)",
+              location: "Placements across EU/EEA",
+              deadline: "2026-10-26",
+              type: "fellowship",
+              apply: "https://ecdc.europa.eu/en/about-us/work-us/call-fellowship-programme-epiet-and-euphem-paths",
+              info: null
+            },
+            {
+              title: "Climate and Health Intern",
+              detail: "Data analysis on air pollution/health, COP31 & pandemic-prevention prep",
+              institution: "UNDP, HIV and Health Pillar",
+              location: "Remote/home-based",
+              deadline: null,
+              deadlineLabel: "Not confirmed — verify on listing",
+              type: "internship",
+              apply: "https://www.unjobnet.org/apply/86374247",
+              info: null
+            },
+            {
+              title: "One Health Trust Internship Program",
+              detail: "Research, communications or admin tracks, remote or in-office",
+              institution: "One Health Trust",
+              location: "Remote or OHT offices (applicant's choice)",
+              deadline: null,
+              deadlineLabel: "Rolling / ongoing",
+              type: "internship",
+              apply: null,
+              info: "https://onehealthtrust.org/academic-training/internship-program/"
+            },
+            {
+              title: "EcoHealth Alliance Internships",
+              detail: "Undergrad/grad/vet students; policy, science, tech, development teams; 3 wks–6 months",
+              institution: "EcoHealth Alliance",
+              location: "New York, USA (remote options vary)",
+              deadline: null,
+              deadlineLabel: "Rolling / year-round",
+              type: "internship",
+              apply: null,
+              info: "https://www.ecohealthalliance.org/career/internships"
+            }
+          ]
+        }
+      ],
+      boards: [
+        { name: "ILRI", url: "https://careers.ilri.org", note: "internships and consultancies across livestock/One Health programs, Nairobi and other hubs" },
+        { name: "International Vaccine Institute", url: "https://ivi.int/careers", note: "ongoing internship program plus rotating entry/mid roles, Seoul" },
+        { name: "PATH", url: "https://path.org/careers", note: "hires continuously across global health disciplines, entry to experienced level" },
+        { name: "CDC ORISE / Zintellect", url: "https://zintellect.com", note: "refreshed regularly with epidemiology, environmental health and disaster-epi fellowships — worth a weekly check" },
+        { name: "WHO careers", url: "https://careers.who.int", note: "internship postings appear individually on a rolling basis" }
+      ]
+    }
+  ];
+
+  const TYPE_LABEL = { fellowship: "Fellowship", scholarship: "Scholarship", phd: "PhD", internship: "Internship", job: "Job" };
+  const locIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>';
+
+  function fmtDate(iso){
+    const d = new Date(iso + "T00:00:00");
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  }
+
+  function deadlineMeta(o){
+    if(!o.deadline){
+      return { label: o.deadlineLabel || "Rolling", cls: "open" };
+    }
+    const today = new Date(); today.setHours(0,0,0,0);
+    const dl = new Date(o.deadline + "T00:00:00");
+    const days = Math.round((dl - today) / 86400000);
+    const label = o.deadlineLabel ? o.deadlineLabel : fmtDate(o.deadline);
+    if(days < 0) return { label: o.deadlineLabel ? o.deadlineLabel : "Closed " + fmtDate(o.deadline), cls: "past" };
+    if(days <= 7) return { label: o.deadlineLabel ? o.deadlineLabel : "Due " + fmtDate(o.deadline), cls: "urgent" };
+    if(days <= 21) return { label: o.deadlineLabel ? o.deadlineLabel : "Due " + fmtDate(o.deadline), cls: "soon" };
+    return { label: o.deadlineLabel ? o.deadlineLabel : "Due " + fmtDate(o.deadline), cls: "open" };
+  }
+
+  function cardHTML(o){
+    const dl = deadlineMeta(o);
+    const links = [];
+    if(o.apply) links.push('<a class="btn primary" href="' + o.apply + '" target="_blank" rel="noopener">Apply →</a>');
+    if(o.info) links.push('<a class="btn ghost" href="' + o.info + '" target="_blank" rel="noopener">Program details</a>');
+    return (
+      '<article class="card">' +
+        '<div class="card-top">' +
+          '<span class="tag ' + o.type + '">' + (TYPE_LABEL[o.type] || o.type) + '</span>' +
+          '<span class="deadline ' + dl.cls + '">' + dl.label + '</span>' +
+        '</div>' +
+        '<h3>' + o.title + '</h3>' +
+        '<div class="inst">' + o.institution + (o.detail ? ' · ' + o.detail : '') + '</div>' +
+        '<div class="loc">' + locIcon + '<span>' + o.location + '</span></div>' +
+        '<div class="card-links">' + links.join('') + '</div>' +
+      '</article>'
+    );
+  }
+
+  function weekPillLabel(w){
+    // "Sept 7–13, 2026" -> "Sept 7–13"
+    return w.dateRangeLabel.replace(/, \d{4}$/, "");
+  }
+
+  function render(){
+    const sorted = [...WEEKS].sort((a,b) => b.id.localeCompare(a.id));
+    const currentId = sorted[0] ? sorted[0].id : null;
+    let selectedId = currentId;
+
+    const rail = document.getElementById("weekRail");
+    const view = document.getElementById("weekView");
+
+    function renderRail(){
+      rail.innerHTML = sorted.map(w =>
+        '<button class="week-pill" type="button" data-id="' + w.id + '" aria-pressed="' + (w.id === selectedId) + '">' +
+          '<span class="dot"></span>' + weekPillLabel(w) +
+        '</button>'
+      ).join('');
+      rail.querySelectorAll(".week-pill").forEach(btn => {
+        btn.addEventListener("click", () => {
+          selectedId = btn.dataset.id;
+          renderRail();
+          renderView();
+        });
+      });
+    }
+
+    function sectionHTML(s){
+      if(!s.opportunities.length) return '';
+      return (
+        '<div class="section">' +
+          '<div class="section-head"><h3>' + s.label + '</h3><span class="count">' + s.opportunities.length + '</span></div>' +
+          '<div class="cards">' + s.opportunities.map(cardHTML).join('') + '</div>' +
+        '</div>'
+      );
+    }
+
+    function boardsHTML(boards){
+      if(!boards || !boards.length) return '';
+      return (
+        '<div class="boards">' +
+          '<h3>Boards worth checking regularly</h3>' +
+          '<ul>' + boards.map(b =>
+            '<li><a href="' + b.url + '" target="_blank" rel="noopener">' + b.name + '</a> — ' + b.note + '</li>'
+          ).join('') + '</ul>' +
+        '</div>'
+      );
+    }
+
+    function renderView(){
+      const w = sorted.find(x => x.id === selectedId);
+      if(!w){
+        view.innerHTML = '<p class="empty">No opportunities logged yet — check back next week.</p>';
+        return;
+      }
+      const isCurrent = w.id === currentId;
+      const total = w.sections.reduce((n, s) => n + s.opportunities.length, 0);
+      view.innerHTML =
+        '<div class="week-head">' +
+          '<h2>Week of ' + w.dateRangeLabel + (isCurrent ? '<span class="current-flag">This week</span>' : '') + '</h2>' +
+          '<span class="week-count">' + total + ' opportunit' + (total === 1 ? 'y' : 'ies') + '</span>' +
+        '</div>' +
+        w.sections.map(sectionHTML).join('') +
+        boardsHTML(w.boards);
+    }
+
+    renderRail();
+    renderView();
+
+    document.getElementById("lastUpdated").textContent =
+      "Latest batch: week of " + sorted[0].dateRangeLabel;
+  }
+
+  render();
+</script>
+</body>
+</html>
+
+</body></html>
